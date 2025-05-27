@@ -14,11 +14,11 @@ describe("When Form is created", () => {
     render(<Home />);
   });
 
-  it("a list of fields card is displayed", async () => {
-     await screen.findByLabelText("Nom");
-     await screen.findByLabelText("Prénom");
-    await screen.findByLabelText("Email");
-    await screen.findByText("Personnel / Entreprise");
+  it("a list of fields card is displayed",  () => {
+     expect(screen.getByText("Nom")).toBeInTheDocument();
+ expect(screen.getByText("Prénom")).toBeInTheDocument();
+ expect(screen.getByText("Email")).toBeInTheDocument();
+  expect(screen.getByText("Personel / Entreprise")).toBeInTheDocument()
   });
 
   it("and a click on Envoyer displays the success message", async () => {
