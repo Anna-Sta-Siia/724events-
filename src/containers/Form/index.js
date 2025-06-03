@@ -8,22 +8,26 @@ const mockContactApi = () => new Promise((resolve) => { setTimeout(resolve, 500)
 
 const Form = ({ onSuccess, onError }) => {
   const [sending, setSending] = useState(false);
-const sendContact = useCallback(
-  async (evt) => {
-    evt.preventDefault();
-    setSending(true);
-    try {
-      await mockContactApi();
-      setSending(false);
-    onSuccess();      // ← on signale la réussite ici
-    } catch (err) {
-      setSending(false);
-      onError(err);
-    }
-  },
-  [onSuccess, onError]
-);
-
+  const sendContact = useCallback(
+    async (evt) => {
+      // eslint-disable-next-line no-console
+      console.log("sendContact appelé");  
+      evt.preventDefault();
+      setSending(true);
+      // We try to call mockContactApi
+      try {
+        await mockContactApi();
+        // eslint-disable-next-line no-console
+        console.log("mockContactApi OK")
+        setSending(false);
+       onSuccess()
+      } catch (err) {
+        setSending(false);
+        onError(err);
+      }
+    },
+    [onSuccess, onError]
+  );
   return (
     <form onSubmit={sendContact}>
       <div className="row">

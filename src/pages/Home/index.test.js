@@ -1,32 +1,32 @@
-jest.mock("../../contexts/DataContext", () => ({
-  useData: () => ({
-    data: { events: [], focus: [] },
-    error: null,
-  }),
-  DataProvider: ({ children }) => children,
-}));
-/* eslint-disable import/first */
 import { fireEvent, render, screen } from "@testing-library/react";
-import Home                          from "./index";
+import Home from "./index";
 
 describe("When Form is created", () => {
-  beforeEach(() => {
+  it("a list of fields card is displayed", async () => {
     render(<Home />);
+    await screen.findByText("Email");
+    await screen.findByText("Nom");
+    await screen.findByText("Prénom");
+    await screen.findByText("Personel / Entreprise");
   });
 
-  it("a list of fields card is displayed",  () => {
-     expect(screen.getByText("Nom")).toBeInTheDocument();
- expect(screen.getByText("Prénom")).toBeInTheDocument();
- expect(screen.getByText("Email")).toBeInTheDocument();
-  expect(screen.getByText("Personel / Entreprise")).toBeInTheDocument()
+  describe("and a click is triggered on the submit button", () => {
+    it("the success message is displayed", async () => {
+      render(<Home />);
+      fireEvent(
+        await screen.findByText("Envoyer"),
+        new MouseEvent("click", {
+          cancelable: true,
+          bubbles: true,
+        })
+      );
+      await screen.findByText("En cours");
+      await screen.findByText("Message envoyé !");
+    });
   });
 
-  it("and a click on Envoyer displays the success message", async () => {
-    const btn = await screen.findByRole("button", { name: /envoyer/i });
-    fireEvent.click(btn);
-    await screen.findByText("Message envoyé !");
-  });
 });
+
 
 describe("When a page is created", () => {
   it("a list of events is displayed", () => {
@@ -42,5 +42,3 @@ describe("When a page is created", () => {
     // to implement
   })
 });
-
-

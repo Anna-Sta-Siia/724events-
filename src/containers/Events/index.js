@@ -13,77 +13,67 @@ const EventList = () => {
   const { data, error } = useData();
   const [type, setType] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-
-  if (error) return <div>An error occurred</div>;
-  if (!data)  return <div>Loading…</div>;
-
-  // 1️⃣ catégories disponibles
-  const typeList = Array.from(new Set(data.events.map(evt => evt.type)));
-
-  // 2️⃣ on commence par trier du plus récent au plus ancien
-  const sorted = [...data.events].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
-
-  // 3️⃣ on filtre ensuite sur la catégorie (null → Toutes)
-  const byType = sorted.filter(evt =>
-    !type || evt.type === type
-  );
-
-  // 4️⃣ pagination sur cet ensemble trié+filtré
-  const totalPages = Math.ceil(byType.length / PER_PAGE);
-  const start      = (currentPage - 1) * PER_PAGE;
-  const paged      = byType.slice(start, start + PER_PAGE);
-
-  // 5️⃣ changement de catégorie → on remet la page à 1
-  const changeType = newType => {
-    setType(newType);
+  const filteredEvents = (
+  (!type
+    ? data?.events
+    : data?.events.filter((evt) => evt.type === type)
+  ) || []
+).filter((_, index) => {
+  if (
+    (currentPage - 1) * PER_PAGE <= index &&
+    PER_PAGE * currentPage > index
+  ) {
+    return true;
+  }
+  return false;
+});
+// eslint-disable-next-line no-console
+console.log(type);
+// eslint-disable-next-line no-console
+console.log([filteredEvents]);
+  const changeType = (evtType) => {
     setCurrentPage(1);
+    setType(evtType);
   };
-
+  const pageNumber = Math.floor((filteredEvents?.length || 0) / PER_PAGE) + 1;
+  const typeList = new Set(data?.events.map((event) => event.type));
   return (
     <>
-      <h3 className="SelectTitle">Catégories</h3>
-      <Select
-        selection={typeList}
-        onChange={value => changeType(value)}
-        titleEmpty={false}   // affiche "Toutes"
-      />
-
-      <div id="events" className="ListContainer">
-        {paged.map(event => (
-          <Modal key={event.id} Content={<ModalEvent event={event} />}>
-            {({ setIsOpened }) => (
-              <EventCard
-                onClick={() => setIsOpened(true)}
-                imageSrc={event.cover}
-                title={event.title}
-                date={new Date(event.date)}
-                label={event.type}
-              />
-            )}
-          </Modal>
-        ))}
-      </div>
-
-      <div className="Pagination">
-        {[...Array(totalPages)].map((_, i) => {
-          const page = i + 1;
-          return (
-            <a
-              key={`page-${page}`}
-              href="#events"
-              className={currentPage === page ? "active" : ""}
-              onClick={e => {
-                e.preventDefault();
-                setCurrentPage(page);
-              }}
-            >
-              {page}
-            </a>
-          );
-        })}
-      </div>
+      {error && <div>An error occured</div>}
+      {data === null ? (
+        "loading"
+      ) : (
+        <>
+          <h3 className="SelectTitle">Catégories</h3>
+          <Select
+            selection={Array.from(typeList)}
+            onChange={(value) => (value ? changeType(value) : changeType(null))}
+          />
+          <div id="events" className="ListContainer">
+            {filteredEvents.map((event) => (
+              <Modal key={event.id} Content={<ModalEvent event={event} />}>
+                {({ setIsOpened }) => (
+                  <EventCard
+                    onClick={() => setIsOpened(true)}
+                    imageSrc={event.cover}
+                    title={event.title}
+                    date={new Date(event.date)}
+                    label={event.type}
+                  />
+                )}
+              </Modal>
+            ))}
+          </div>
+          <div className="Pagination">
+            {[...Array(pageNumber || 0)].map((_, n) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <a key={n} href="#events" onClick={() => setCurrentPage(n + 1)}>
+                {n + 1}
+              </a>
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 };

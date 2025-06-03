@@ -1,79 +1,65 @@
-import { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useData } from "../../contexts/DataContext";
 import { getMonth } from "../../helpers/Date";
+
 import "./style.scss";
 
 const Slider = () => {
   const { data } = useData();
   const [index, setIndex] = useState(0);
 
-  // 1. Copie + tri ascendant
-  const byDateAsc = data?.focus
+  const byDateDesc = data?.focus
     .slice()
-    .sort((a, b) => new Date(a.date) - new Date(b.date)) || [];
+    .sort((a, b) => (new Date(a.date) < new Date(b.date) ? -1 : 1)) || [];
 
-  // 2. Intervalle auto
   useEffect(() => {
-  let interval;                       // on déclare la variable ici
-  if (byDateAsc.length > 0) {
-    interval = setInterval(() => {
-      setIndex(i => (i + 1) % byDateAsc.length);
+    // À chaque montage ou quand la taille des slides change, on crée l'interval
+    const intervalId = setInterval(() => {
+      setIndex(prevIndex =>
+        prevIndex < byDateDesc.length - 1 ? prevIndex + 1 : 0
+      );
     }, 5000);
-  }
 
-  // On retourne *toujours* une fonction de cleanup,
-  // qui ne fait quelque chose que si `interval` existe.
-  return () => {
-    if (interval) clearInterval(interval);
-  };
-}, [byDateAsc.length]);
-
-
-    // 3. Si la donnée n'est pas encore chargée, on ne rend rien
- if (!data) return null;
-
-console.log(
-  "Slider dates et mois :",
-  byDateAsc.map(e => ({
-    raw: e.date,
-    month: getMonth(new Date(e.date))
-  }))
-);
-
-
+    return () => clearInterval(intervalId);
+  }, [byDateDesc.length]);
   return (
-  <div className="SlideCardList">
-  {/* slide d'index 0 en display dès le premier rendu */}
-  {byDateAsc.map((event, idx) => (
-    <div
-      key={event.id}
-      className={`SlideCard SlideCard--${index === idx ? "display" : "hide"}`}
-    >
-          <img src={event.cover} alt={event.title} />
+    <div className="SlideCardList">
+      {/* === 1. Boucle pour les slides === */}
+      {byDateDesc?.map((evt, idx) => (
+        
+        <div
+        // eslint-disable-next-line react/no-array-index-key
+          key={`${evt.title}-${idx}`}
+          className={`SlideCard SlideCard--${
+            index === idx ? "display" : "hide"
+          }`}
+        >
+          <img src={evt.cover} alt="forum" />
           <div className="SlideCard__descriptionContainer">
             <div className="SlideCard__description">
-              <h3>{event.title}</h3>
-              <p>{event.description}</p>
-              <div className="SlideCard__month">
-                {getMonth(new Date(event.date))}
-              </div>
+              <h3>{evt.title}</h3>
+              <p>{evt.description}</p>
+              <div>{getMonth(new Date(evt.date))}</div>
             </div>
           </div>
         </div>
       ))}
 
-      {/* 4. Pagination hors de la map */}
+      {/* === 2. Bloc unique de pagination, hors du map des slides === */}
       <div className="SlideCard__paginationContainer">
-        
-            {byDateAsc.map((evt, radioIdx) => (
-    <input
-    key={`dot-${evt.id}`}  
-            type="radio"
-            name="slider-radio"
-            checked={radioIdx === index}
-            onChange={() => setIndex(radioIdx)}
-          />
-        ))}
+        <div className="SlideCard__pagination">
+          {byDateDesc.map((evt, radioIdx) => (
+            
+            <input
+            // eslint-disable-next-line react/no-array-index-key
+              key={`radio-${evt.title}-${radioIdx}`}
+              type="radio"
+              name="radio-button"
+              checked={index === radioIdx}
+              onChange={() => setIndex(radioIdx)}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

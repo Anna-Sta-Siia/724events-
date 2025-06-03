@@ -17,9 +17,19 @@ const Page = () => {
 
   if (!data) return null;
 
-  // on prend le focus le plus récent
-  const lastFocus = [...data.focus]
-    .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+  // on prend la prestation la plus récente
+// on récupère d’abord les deux listes
+  const { events, focus } = data;
+
+  // on fusionne (concatène) tous les objets dans un seul tableau avec l'aide de spread
+  const allItems = [...events, ...focus];
+
+  //  on trie ce tableau du plus récent au plus ancien
+  const sortedAll = allItems.sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
+ // on prend l’élément [0], qui est le plus récent parmi "events" et "focus"
+  const lastItem = sortedAll[0];
   return <>
     <header>
       <Menu />
@@ -29,7 +39,7 @@ const Page = () => {
         <Slider />
       </section>
       <section className="ServicesContainer">
-        <h2 className="Title">Nos services</h2>
+        <h2 id="nos-services" className="Title">Nos services</h2>
         <p>Nous organisons des événements sur mesure partout dans le monde</p>
         <div className="ListContainer">
           <ServiceCard imageSrc="/images/priscilla-du-preez-Q7wGvnbuwj0-unsplash1.png">
@@ -58,11 +68,11 @@ const Page = () => {
         </div>
       </section>
       <section className="EventsContainer">
-        <h2 className="Title">Nos réalisations</h2>
+        <h2 id="nos-realisations" className="Title">Nos réalisations</h2>
         <EventList />
       </section>
       <section className="PeoplesContainer">
-        <h2 className="Title">Notre équipe</h2>
+        <h2 id="notre-equipe" className="Title">Notre équipe</h2>
         <p>Une équipe d’experts dédiés à l’ogranisation de vos événements</p>
         <div className="ListContainer">
           <PeopleCard
@@ -122,11 +132,11 @@ const Page = () => {
     <footer className="row">
       <div className="col presta">
           <h3>Notre dernière prestation</h3>
-          {lastFocus && (
+          {lastItem && (
             <EventCard
-              imageSrc={lastFocus.cover}
-              title={lastFocus.title}
-              date={new Date(lastFocus.date)}
+              imageSrc={lastItem.cover}
+              title={lastItem.title}
+              date={new Date(lastItem.date)}
               small
               label="boom"
             />
