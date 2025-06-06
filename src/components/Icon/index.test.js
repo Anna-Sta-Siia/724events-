@@ -11,7 +11,10 @@ describe("Icon component", () => {
     });
     describe("When a icon is created with name facebook", () => {
         it("the icon contain this path hash value bbea4c9e40773b969fdb6e406059f853", () => {
-            // to complete
+      render(<Icon name="facebook" />);
+      const facebookPath = screen.getByTestId("icon");
+      const dAttr = facebookPath.getAttribute("d");
+      expect(md5(dAttr)).toEqual("bbea4c9e40773b969fdb6e406059f853");
         });
     });
 })

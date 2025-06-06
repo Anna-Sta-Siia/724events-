@@ -12,25 +12,26 @@ import Form from "../../containers/Form";
 import Modal from "../../containers/Modal";
 import { useData } from "../../contexts/DataContext";
 
+
 const Page = () => {
   const { data } = useData();
+  const events = data?.events || [];
 
-  if (!data) return null;
+  // calcul de lastItem  sur "events"
+  let lastItem = null;
+  if (data && events.length > 0) {
+    // on trie une copie d’events du plus récent au plus ancien
+    const sortedEvents = [...events].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+  
+    const [firstEvent] = sortedEvents;
+    lastItem = firstEvent;
 
-  // on prend la prestation la plus récente
-// on récupère d’abord les deux listes
-  const { events, focus } = data;
+  }
+  
 
-  // on fusionne (concatène) tous les objets dans un seul tableau avec l'aide de spread
-  const allItems = [...events, ...focus];
-
-  //  on trie ce tableau du plus récent au plus ancien
-  const sortedAll = allItems.sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
- // on prend l’élément [0], qui est le plus récent parmi "events" et "focus"
-  const lastItem = sortedAll[0];
-  return <>
+ return <>
     <header>
       <Menu />
     </header>
@@ -67,7 +68,7 @@ const Page = () => {
           </ServiceCard>
         </div>
       </section>
-      <section className="EventsContainer">
+      <section className="EventsContainer" data-testid="events-container">
         <h2 id="nos-realisations" className="Title">Nos réalisations</h2>
         <EventList />
       </section>
@@ -76,31 +77,37 @@ const Page = () => {
         <p>Une équipe d’experts dédiés à l’ogranisation de vos événements</p>
         <div className="ListContainer">
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/stephanie-liverani-Zz5LQe-VSMY-unsplash.png"
             name="Samira"
             position="CEO"
           />
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/linkedin-sales-solutions-pAtA8xe_iVM-unsplash.png"
             name="Jean-baptiste"
             position="Directeur marketing"
           />
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/christina-wocintechchat-com-SJvDxw0azqw-unsplash.png"
             name="Alice"
             position="CXO"
           />
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/jonas-kakaroto-KIPqvvTOC1s-unsplash.png"
             name="Luís"
             position="Animateur"
           />
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/amy-hirschi-b3AYk8HKCl0-unsplash1.png"
             name="Christine"
             position="VP animation"
           />
           <PeopleCard
+          data-testid="people-card"
             imageSrc="/images/christina-wocintechchat-com-0Zx1bDv5BNY-unsplash.png"
             name="Isabelle"
             position="VP communication"
@@ -130,7 +137,7 @@ const Page = () => {
       </div>
     </main>
     <footer className="row">
-      <div className="col presta">
+      <div className="col presta" data-testid="last-event-container">
           <h3>Notre dernière prestation</h3>
           {lastItem && (
             <EventCard
